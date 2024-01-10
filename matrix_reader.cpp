@@ -409,11 +409,15 @@ Eigen::SparseMatrix<double> computeSAM(const Eigen::SparseMatrix<double>& As,
     Eigen::VectorXd valM = Eigen::VectorXd::Zero(2 * nnzMM);
 
     std::cout << "Processing columns..." << std::endl;
-
+   // printFirst10Elements(PP, "PP");
+    //error might be here
     for (int k = 1; k < N; ++k) {
-        nz_M[k] = find(PP, k);
-        nz_LS[k] = find(PP2, k);
-
+       
+         nz_M[k] = find(PP, k);
+         nz_LS[k] = find(PP2, k);
+           
+   
+           
         // 2. Check Non-Zero Elements After find
         if (nz_M[k].size() == 0 || nz_LS[k].size() == 0) {
             std::cerr << "Error: Empty vector at column " << k << std::endl;
@@ -434,6 +438,7 @@ Eigen::SparseMatrix<double> computeSAM(const Eigen::SparseMatrix<double>& As,
 
     for (int k = 1; k < N; ++k) {
         // Check Submatrix Operations
+
         if (nz_LS[k].size() == 0 || nz_M[k].size() == 0) {
             std::cerr << "Error: Empty row or column vectors for subMatrix at column " << k << std::endl;
             continue;
@@ -477,7 +482,7 @@ Eigen::SparseMatrix<double> computeSAM(const Eigen::SparseMatrix<double>& As,
             std::cerr << "Solving failed at column " << k << std::endl;
             continue;
         }
-
+        //std::cout << "size " << M.size() << std::endl;
         // Insert the results into the appropriate places in the rowM, colM, and valM arrays
         for (int i = 0; i < M.size(); ++i) {
             rowM(cntrM) = static_cast<double>(nz_M[k](i));
@@ -591,6 +596,11 @@ Eigen::SparseMatrix<double> computeSAM(const Eigen::SparseMatrix<double>& As,
 
 int main() {
     auto start_time_total = std::chrono::high_resolution_clock::now();
+    //early declaration
+    Eigen::SparseMatrix<double> matA, matB; // Declare matA and matB here
+
+
+
 
     // Open a binary file using Windows-specific API
     HANDLE hFile = CreateFileW(L"C:\\Users\\baseb\\source\\repos\\SAM\\files\\system_00100.bin", GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
@@ -722,36 +732,18 @@ int main() {
             auto matrices = memMap(i);
             auto& matA = matrices.first;
             auto& matB = matrices.second;
-
-            int N = size(matA, 1);
-            Eigen::VectorXd D = matA.diagonal();
-            Eigen::VectorXd Dsr_1 = D.array().sqrt().inverse();
-            Eigen::SparseVector<double> d_Sparse = getDiagonalSparse(matA);
-
-            multiplyMatrixByVectorElementWise(matA, Dsr_1);
-            scaleMatrixRows(matB, Dsr_1);
-
-
-
-            Eigen::SparseMatrix<double> MM = computeSAM(mat_A, PP, PP2, N);
-
-            // Set the output formatting
-            std::cout << std::fixed << std::setprecision(4);
-
-            //// Iterate over each element in the matrix
-            //for (int i = 0; i < MM.rows(); ++i) {
-            //    for (int j = 0; j <2; ++j) {
-            //        double value = MM.coeff(i, j);
-            //        std::cout << "(" << i << "," << j << ") " << std::setw(16) << value << std::endl;
-            //    }
-            //}
-
-
-           // printFirst10Elements(MM, "MM");
-
         }
+        int N = size(matA, 1);
+        Eigen::VectorXd D = matA.diagonal();
+        Eigen::VectorXd Dsr_1 = D.array().sqrt().inverse();
+        Eigen::SparseVector<double> d_Sparse = getDiagonalSparse(matA);
 
+        multiplyMatrixByVectorElementWise(matA, Dsr_1);
+        scaleMatrixRows(matB, Dsr_1);
     }
+    Eigen::SparseMatrix<double> MM = computeSAM(mat_A, PP, PP2, N);
+    printFirst10Elements(MM, "MM");
+
     auto end_time_total = std::chrono::high_resolution_clock::now();
     double elapsed_time_total = std::chrono::duration<double>(end_time_total - start_time_total).count();
     std::cout << "Total runtime of main(): " << elapsed_time_total << " seconds" << std::endl;
