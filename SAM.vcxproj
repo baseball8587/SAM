@@ -105,8 +105,9 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>C:\Users\baseb\source\repos\SAM\packages</AdditionalIncludeDirectories>
-      <Optimization>Full</Optimization>
+      <Optimization>MaxSpeed</Optimization>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -149,7 +150,21 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="matrix_reader.hpp" />
+    <ClInclude Include="computeIndices.h" />
+    <ClInclude Include="computeMask.h" />
+    <ClInclude Include="computeSAM.h" />
+    <ClInclude Include="convertToLogical.h" />
+    <ClInclude Include="createSparseMatrix.h" />
+    <ClInclude Include="createSparseSubMatrix.h" />
+    <ClInclude Include="elementWiseMultiply.h" />
+    <ClInclude Include="find.h" />
+    <ClInclude Include="findNonZeros.h" />
+    <ClInclude Include="GetDiagnoalSparse.h" />
+    <ClInclude Include="readMatrix.h" />
+    <ClInclude Include="memMap.h" />
+    <ClInclude Include="multiplyMatrixByVectorElementWise.h" />
+    <ClInclude Include="scaleMatrixRows.h" />
+    <ClInclude Include="size.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

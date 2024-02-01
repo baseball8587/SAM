@@ -16,6 +16,21 @@
     <Filter Include="files">
       <UniqueIdentifier>{a79cce60-837c-4be5-8ae9-4c057660d48b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\file_reader">
+      <UniqueIdentifier>{a7177014-d48b-4177-ba45-9199edef49d1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Diagnol">
+      <UniqueIdentifier>{e7ab256b-294f-47c4-8437-3ee8dfb71b73}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Matrix">
+      <UniqueIdentifier>{05ae104e-c023-41b3-bc79-36ccc4d34153}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Sparse_Matrix">
+      <UniqueIdentifier>{f57f417e-6396-4a8d-91bc-35972cd1d5a1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Multiplication">
+      <UniqueIdentifier>{e5c0c989-276e-4739-ad20-4e9336c731e9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -44,11 +59,55 @@
     </Text>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="matrix_reader.cpp" />
+    <ClInclude Include="readMatrix.h">
+      <Filter>Header Files\file_reader</Filter>
+    </ClInclude>
+    <ClInclude Include="GetDiagnoalSparse.h">
+      <Filter>Header Files\Diagnol</Filter>
+    </ClInclude>
+    <ClInclude Include="scaleMatrixRows.h">
+      <Filter>Header Files\Matrix</Filter>
+    </ClInclude>
+    <ClInclude Include="computeIndices.h">
+      <Filter>Header Files\Matrix</Filter>
+    </ClInclude>
+    <ClInclude Include="computeMask.h">
+      <Filter>Header Files\Matrix</Filter>
+    </ClInclude>
+    <ClInclude Include="findNonZeros.h">
+      <Filter>Header Files\Matrix</Filter>
+    </ClInclude>
+    <ClInclude Include="multiplyMatrixByVectorElementWise.h">
+      <Filter>Header Files\Multiplication</Filter>
+    </ClInclude>
+    <ClInclude Include="elementWiseMultiply.h">
+      <Filter>Header Files\Multiplication</Filter>
+    </ClInclude>
+    <ClInclude Include="convertToLogical.h">
+      <Filter>Header Files\Matrix</Filter>
+    </ClInclude>
+    <ClInclude Include="memMap.h">
+      <Filter>Header Files\file_reader</Filter>
+    </ClInclude>
+    <ClInclude Include="find.h">
+      <Filter>Header Files\Sparse_Matrix</Filter>
+    </ClInclude>
+    <ClInclude Include="createSparseMatrix.h">
+      <Filter>Header Files\Sparse_Matrix</Filter>
+    </ClInclude>
+    <ClInclude Include="createSparseSubMatrix.h">
+      <Filter>Header Files\Sparse_Matrix</Filter>
+    </ClInclude>
+    <ClInclude Include="computeSAM.h">
+      <Filter>Header Files\Sparse_Matrix</Filter>
+    </ClInclude>
+    <ClInclude Include="size.h">
+      <Filter>Header Files\Matrix</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="matrix_reader.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
+    <ClCompile Include="matrix_reader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
