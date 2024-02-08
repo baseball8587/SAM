@@ -35,12 +35,6 @@
 
 
 
-
-
-
-
-
-
 int main() {
     auto start_time_total = std::chrono::high_resolution_clock::now();
 

@@ -5,6 +5,9 @@
 #include "find.h"
 #include <unordered_map>
 #include "createSparseSubMatrix.h"
+#include <unordered_map>
+#include <omp.h>
+#include <numeric>
 
 Eigen::SparseMatrix<double> computeSAM(const Eigen::SparseMatrix<double>& As,
     const Eigen::SparseMatrix<double>& PP,
@@ -28,8 +31,8 @@ Eigen::SparseMatrix<double> computeSAM(const Eigen::SparseMatrix<double>& As,
     Eigen::VectorXd valM = Eigen::VectorXd::Zero(2 * nnzMM);
 
     std::cout << "Processing columns..." << std::endl;
-    // printFirst10Elements(PP, "PP");
-     //error might be here
+
+
     for (int k = 1; k < N; ++k) {
 
         nz_M[k] = find(PP, k);
@@ -54,74 +57,71 @@ Eigen::SparseMatrix<double> computeSAM(const Eigen::SparseMatrix<double>& As,
     Eigen::MatrixXd G = Eigen::MatrixXd::Zero(max_row, max_col);
     Eigen::VectorXd M = Eigen::VectorXd::Zero(max_row);
     int cntrM = 0;
+    std::vector<Eigen::Triplet<double>> allTriplets; // Container for all triplets
+    int maxThreads = omp_get_max_threads();
+    std::vector<std::vector<Eigen::Triplet<double>>> threadLocalTriplets(maxThreads);
 
-    for (int k = 1; k < N; ++k) {
-        // Check Submatrix Operations
+#pragma omp parallel
+    {
+        std::vector<Eigen::Triplet<double>> localTriplets; // Local storage for triplets
+        int threadId = omp_get_thread_num();
 
-        if (nz_LS[k].size() == 0 || nz_M[k].size() == 0) {
-            std::cerr << "Error: Empty row or column vectors for subMatrix at column " << k << std::endl;
-            continue;
-        }
-        // Declare rows_map at the beginning of the loop
-        std::unordered_map<int, int> rows_map;
+#pragma omp for nowait // Schedule loop iterations without waiting
+        for (int k = 1; k < N; ++k) {
+            if (nz_LS[k].size() == 0 || nz_M[k].size() == 0) {
+                std::cerr << "Error: Empty row or column vectors for subMatrix at column " << k << std::endl;
+                continue;
+            }
 
-        // Populate rows_map with the mapping from nz_LS to local indices
-        for (int i = 0; i < nz_LS[k].size(); ++i) {
-            rows_map[nz_LS[k][i]] = i;
-        }
+            std::unordered_map<int, int> rows_map;
+            for (int i = 0; i < nz_LS[k].size(); ++i) {
+                rows_map[nz_LS[k][i]] = i;
+            }
 
-        // Create the submatrix G
-        Eigen::SparseMatrix<double> G = createSparseSubMatrix(As, nz_LS[k], nz_M[k]);
+            Eigen::SparseMatrix<double> G = createSparseSubMatrix(As, nz_LS[k], nz_M[k]);
+            Eigen::VectorXd As0_col(G.rows());
+            int idx = 0;
+            for (Eigen::SparseMatrix<double>::InnerIterator it(As, k); it; ++it) {
+                if (rows_map.count(it.row())) {
+                    As0_col(idx++) = it.value();
+                }
+            }
 
-        // Create the right-hand side vector for the current column of As
-        Eigen::VectorXd As0_col(G.rows());
-        int idx = 0;
-        for (Eigen::SparseMatrix<double>::InnerIterator it(As, k); it; ++it) {
-            if (rows_map.count(it.row())) {  // Ensure that the row is part of the submatrix
-                As0_col(idx++) = it.value();
+            Eigen::SparseQR<Eigen::SparseMatrix<double>, Eigen::COLAMDOrdering<int>> solver;
+            solver.compute(G);
+            if (solver.info() == Eigen::Success) {
+                Eigen::VectorXd M = solver.solve(As0_col);
+                if (solver.info() == Eigen::Success) {
+                    for (int i = 0; i < M.size(); ++i) {
+                        localTriplets.emplace_back(nz_LS[k][i], k, M(i)); // Construct triplet for thread-local matrix
+                    }
+                }
             }
         }
 
-        // Check Before Solving Linear System
-        if (G.rows() != As0_col.size()) {
-            std::cerr << "Error: Dimension mismatch before solving linear system at column " << k << std::endl;
-            continue;
-        }
-
-        // Solve the linear system using SparseQR
-        Eigen::SparseQR<Eigen::SparseMatrix<double>, Eigen::COLAMDOrdering<int>> solver;
-        solver.compute(G);
-        if (solver.info() != Eigen::Success) {
-            std::cerr << "Decomposition failed at column " << k << std::endl;
-            continue;
-        }
-
-        Eigen::VectorXd M = solver.solve(As0_col);
-        if (solver.info() != Eigen::Success) {
-            std::cerr << "Solving failed at column " << k << std::endl;
-            continue;
-        }
-        //std::cout << "size " << M.size() << std::endl;
-        // Insert the results into the appropriate places in the rowM, colM, and valM arrays
-        for (int i = 0; i < M.size(); ++i) {
-            rowM(cntrM) = static_cast<double>(nz_M[k](i));
-            colM(cntrM) = static_cast<double>(k);
-            valM(cntrM) = M(i);
-            cntrM++;
+#pragma omp critical
+        {
+            threadLocalTriplets[threadId] = std::move(localTriplets); // Move localTriplets to the thread-specific vector
         }
     }
 
+    // Sequentially merge the results from each thread
+    for (const auto& threadTriplets : threadLocalTriplets) {
+        allTriplets.insert(allTriplets.end(), threadTriplets.begin(), threadTriplets.end());
+    }
 
-    std::cout << "Finished processing columns. Constructing result matrix..." << std::endl;
-
+    // Continue with the rest of your code to construct the result matrix
     Eigen::SparseMatrix<double> result(As.rows(), N);
-    for (int i = 0; i < cntrM; ++i) {
-        result.insert(rowM(i), colM(i)) = valM(i);
-    }
+    result.setFromTriplets(allTriplets.begin(), allTriplets.end()); // Construct the result matrix from triplets
+    result.makeCompressed(); // Compress the result matrix for efficient storage and computation
 
-    result.makeCompressed(); // This is important for efficiency
+    // Optional: Print some triplets for verification
+    for (int i = 0; i < 10; i++) {
+        const Eigen::Triplet<double>& triplet = allTriplets[i];
+        std::cout << "Triplet at index " << i << ": Row: " << triplet.row()
+            << ", Column: " << triplet.col() << ", Value: " << triplet.value() << std::endl;
+    }
 
     std::cout << "Finished computeSAM function." << std::endl;
-
     return result;
 }
