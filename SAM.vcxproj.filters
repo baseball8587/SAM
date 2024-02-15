@@ -34,29 +34,15 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-    <None Include="..\..\..\AppData\Local\Temp\Rar$DRa22208.36249\system_00100.mat">
+    <None Include="files\system_00105.bin">
       <Filter>files</Filter>
     </None>
-    <None Include="..\..\..\AppData\Local\Temp\Rar$DRa22208.36249\system_00105.mat">
+    <None Include="files\system_00110.bin">
       <Filter>files</Filter>
     </None>
-    <None Include="..\..\..\OneDrive\Documents\MATLAB\SubsetPattern\Top_opt_matrices_N16k\system_00110.csv">
+    <None Include="files\system_00100.bin">
       <Filter>files</Filter>
     </None>
-    <None Include="..\..\..\Downloads\system_00100.bin">
-      <Filter>files</Filter>
-    </None>
-    <None Include="..\..\..\Downloads\system_00110.bin">
-      <Filter>files</Filter>
-    </None>
-    <None Include="..\..\..\Downloads\system_00105.bin">
-      <Filter>files</Filter>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="..\..\..\AppData\Local\Temp\Rar$DRa22208.36249\system_00110.mat">
-      <Filter>files</Filter>
-    </Text>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="readMatrix.h">

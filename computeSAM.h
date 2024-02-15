@@ -87,16 +87,16 @@ Eigen::SparseMatrix<double> computeSAM(const Eigen::SparseMatrix<double>& As,
                 }
             }
 
-            Eigen::SparseQR<Eigen::SparseMatrix<double>, Eigen::COLAMDOrdering<int>> solver;
+            /*Eigen::SparseQR<Eigen::SparseMatrix<double>, Eigen::COLAMDOrdering<int>> solver;
             solver.compute(G);
             if (solver.info() == Eigen::Success) {
                 Eigen::VectorXd M = solver.solve(As0_col);
-                if (solver.info() == Eigen::Success) {
-                    for (int i = 0; i < M.size(); ++i) {
-                        localTriplets.emplace_back(nz_LS[k][i], k, M(i)); // Construct triplet for thread-local matrix
+                if (solver.info() == Eigen::Success) {*/
+                    for (int i = 0; i < As0_col.size(); ++i) {
+                        localTriplets.emplace_back(nz_LS[k][i], k, As0_col(i)); // Construct triplet for thread-local matrix
                     }
-                }
-            }
+               // }
+            //}
         }
 
 #pragma omp critical
@@ -116,7 +116,7 @@ Eigen::SparseMatrix<double> computeSAM(const Eigen::SparseMatrix<double>& As,
     result.makeCompressed(); // Compress the result matrix for efficient storage and computation
 
     // Optional: Print some triplets for verification
-    for (int i = 0; i < 10; i++) {
+    for (int i = 4326; i <4340 ; i++) {
         const Eigen::Triplet<double>& triplet = allTriplets[i];
         std::cout << "Triplet at index " << i << ": Row: " << triplet.row()
             << ", Column: " << triplet.col() << ", Value: " << triplet.value() << std::endl;
