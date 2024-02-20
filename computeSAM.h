@@ -115,12 +115,12 @@ Eigen::SparseMatrix<double> computeSAM(const Eigen::SparseMatrix<double>& As,
     result.setFromTriplets(allTriplets.begin(), allTriplets.end()); // Construct the result matrix from triplets
     result.makeCompressed(); // Compress the result matrix for efficient storage and computation
 
-    // Optional: Print some triplets for verification
-    for (int i = 4326; i <4340 ; i++) {
-        const Eigen::Triplet<double>& triplet = allTriplets[i];
-        std::cout << "Triplet at index " << i << ": Row: " << triplet.row()
-            << ", Column: " << triplet.col() << ", Value: " << triplet.value() << std::endl;
-    }
+    //// Optional: Print some triplets for verification
+    //for (int i = 0; i <100 ; i++) {
+    //    const Eigen::Triplet<double>& triplet = allTriplets[i];
+    //    std::cout << "Triplet at index " << i << ": Row: " << triplet.row()
+    //        << ", Column: " << triplet.col() << ", Value: " << triplet.value() << std::endl;
+    //}
 
     std::cout << "Finished computeSAM function." << std::endl;
     return result;
