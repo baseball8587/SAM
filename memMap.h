@@ -56,6 +56,6 @@ std::pair<Eigen::SparseMatrix<double>, Eigen::SparseMatrix<double>> memMap(int i
         std::wcerr << L"Error processing file: " << fileName << L" - " << e.what() << std::endl;
         return { mat_A0, mat_B0 }; // Return empty matrices in case of an error
     }
-
+    
     return { mat_A0, mat_B0 };
 }

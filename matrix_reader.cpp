@@ -34,9 +34,9 @@
 
 
 
-
 int main() {
     auto start_time_total = std::chrono::high_resolution_clock::now();
+   
 
     // Open a binary file using Windows-specific API
     HANDLE hFile = CreateFileW(L"C:\\Users\\baseb\\source\\repos\\SAM\\files\\system_00100.bin", GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
@@ -132,10 +132,11 @@ int main() {
     auto end_time_Bs = std::chrono::high_resolution_clock::now();
     double elapsed_time_Bs = std::chrono::duration<double>(end_time_Bs - start_Bs).count();
     std::cout << "Time taken for Finding Bs: " << elapsed_time_Bs << " seconds" << std::endl;
-
-
-    Eigen::SparseMatrix<double> PP2;// early initilization 
+    //Dsr1.resize(0, 0);
+    
+   
     Eigen::SparseMatrix<double> PP;
+    Eigen::SparseMatrix<double> As;
     for (int i = 105; i <= 110; i = i + 5) {
         if (i == 105){
         auto matrices = memMap(i);
@@ -154,14 +155,17 @@ int main() {
         // Use the values from the IndicesResult struct to compute the mask
         Eigen::SparseMatrix<double> msk = computeMask(indicesResult.rows, indicesResult.cols, indicesResult.nz_count);
 
-        Eigen::SparseMatrix<double> As;
+        
+        As = mat_A;
         std::vector<int> I, J;
         findNonZeros(mat_A, I, J);
         Eigen::SparseMatrix<double> findA = createSparseMatrix(I, J);
 
         Eigen::SparseMatrix<bool> PP1 = convertToLogical(findA);
+       // findA.resize(0, 0);
         PP = elementWiseMultiply(PP1, msk);
-        PP2 = PP;
+        //PP2 = PP;
+      
     }
        else if (i > 105) {
             auto matrices = memMap(i);
@@ -175,14 +179,11 @@ int main() {
 
             multiplyMatrixByVectorElementWise(matA, Dsr_1);
             scaleMatrixRows(matB, Dsr_1);
-
-
-
-  
-
+            //matB.resize(0, 0); // This effectively frees the memory used by matB
+            //matA.resize(0, 0);
         }
-        Eigen::SparseMatrix<double> MM = computeSAM(mat_A, PP, PP2, N);
-   
+        Eigen::SparseMatrix<double> MM = computeSAM(As, PP, PP, N);
+        
 
     }
    

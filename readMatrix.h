@@ -22,7 +22,6 @@ Eigen::SparseMatrix<double> readMatrix(char*& dataPtr, double& elapsed_time) {
         mat.insert(i_data[index], j_data[index]) = s_data[index];
     }
 
-  
 
     return mat;
 }

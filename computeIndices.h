@@ -25,6 +25,6 @@ IndicesResult computeIndices(const int N, const std::vector<int>& patt) {
             }
         }
     }
-
+    
     return { cols, rows, nz_cnt };
 }

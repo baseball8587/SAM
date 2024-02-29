@@ -18,6 +18,6 @@ Eigen::SparseMatrix<double> createSparseMatrix(const std::vector<int>& I, const 
 
     // Fill the sparse matrix
     findA.setFromTriplets(tripletList.begin(), tripletList.end());
-
+ 
     return findA;
 }

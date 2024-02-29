@@ -26,6 +26,7 @@ Eigen::SparseMatrix<double> computeSAM(const Eigen::SparseMatrix<double>& As,
     Eigen::VectorXi nnz_M(N), nnz_LS(N);
 
     int nnzMM = PP2.nonZeros();
+   
     Eigen::VectorXd rowM = Eigen::VectorXd::Zero(2 * nnzMM);
     Eigen::VectorXd colM = Eigen::VectorXd::Zero(2 * nnzMM);
     Eigen::VectorXd valM = Eigen::VectorXd::Zero(2 * nnzMM);
@@ -37,8 +38,6 @@ Eigen::SparseMatrix<double> computeSAM(const Eigen::SparseMatrix<double>& As,
 
         nz_M[k] = find(PP, k);
         nz_LS[k] = find(PP2, k);
-
-
 
         // 2. Check Non-Zero Elements After find
         if (nz_M[k].size() == 0 || nz_LS[k].size() == 0) {
@@ -54,8 +53,6 @@ Eigen::SparseMatrix<double> computeSAM(const Eigen::SparseMatrix<double>& As,
     int max_row = nnz_LS.maxCoeff();
 
 
-    Eigen::MatrixXd G = Eigen::MatrixXd::Zero(max_row, max_col);
-    Eigen::VectorXd M = Eigen::VectorXd::Zero(max_row);
     int cntrM = 0;
     std::vector<Eigen::Triplet<double>> allTriplets; // Container for all triplets
     int maxThreads = omp_get_max_threads();
@@ -116,11 +113,11 @@ Eigen::SparseMatrix<double> computeSAM(const Eigen::SparseMatrix<double>& As,
     result.makeCompressed(); // Compress the result matrix for efficient storage and computation
 
     //// Optional: Print some triplets for verification
-    //for (int i = 0; i <100 ; i++) {
-    //    const Eigen::Triplet<double>& triplet = allTriplets[i];
-    //    std::cout << "Triplet at index " << i << ": Row: " << triplet.row()
-    //        << ", Column: " << triplet.col() << ", Value: " << triplet.value() << std::endl;
-    //}
+    for (int i = 0; i <10 ; i++) {
+        const Eigen::Triplet<double>& triplet = allTriplets[i];
+        std::cout << "Triplet at index " << i << ": Row: " << triplet.row()
+            << ", Column: " << triplet.col() << ", Value: " << triplet.value() << std::endl;
+    }
 
     std::cout << "Finished computeSAM function." << std::endl;
     return result;

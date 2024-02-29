@@ -16,6 +16,6 @@ Eigen::SparseMatrix<double> computeMask(const std::vector<int>& rows, const std:
 
     Eigen::SparseMatrix<double> msk(maxRow + 1, maxCol + 1);
     msk.setFromTriplets(tripletList.begin(), tripletList.end());
-
+    
     return msk;
 }
