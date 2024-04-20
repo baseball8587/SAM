@@ -33,10 +33,8 @@
 
 
 
-
 int main() {
     auto start_time_total = std::chrono::high_resolution_clock::now();
-   
 
     // Open a binary file using Windows-specific API
     HANDLE hFile = CreateFileW(L"C:\\Users\\baseb\\source\\repos\\SAM\\files\\system_00100.bin", GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
@@ -95,13 +93,13 @@ int main() {
     Eigen::VectorXd d = mat_A.diagonal();
     auto end_time_d = std::chrono::high_resolution_clock::now();
     double elapsed_time_d = std::chrono::duration<double>(end_time_d - start_time_d).count();
-   
+
 
     // Timing for 'Dsr1' computation
     auto start_time_Dsr1 = std::chrono::high_resolution_clock::now();
 
     Eigen::VectorXd Dsr1 = d.array().sqrt().inverse();
- 
+
     auto end_time_Dsr1 = std::chrono::high_resolution_clock::now();
     double elapsed_time_Dsr1 = std::chrono::duration<double>(end_time_Dsr1 - start_time_Dsr1).count();
 
@@ -125,49 +123,45 @@ int main() {
     auto end_time_As = std::chrono::high_resolution_clock::now();
     double elapsed_time_As = std::chrono::duration<double>(end_time_As - start_As).count();
     std::cout << "Time taken for Finding As: " << elapsed_time_As << " seconds" << std::endl;
-   
+
     auto start_Bs = std::chrono::high_resolution_clock::now();
 
     scaleMatrixRows(mat_B, Dsr1);
     auto end_time_Bs = std::chrono::high_resolution_clock::now();
     double elapsed_time_Bs = std::chrono::duration<double>(end_time_Bs - start_Bs).count();
     std::cout << "Time taken for Finding Bs: " << elapsed_time_Bs << " seconds" << std::endl;
-    //Dsr1.resize(0, 0);
-    
-   
+
+
+    Eigen::SparseMatrix<double> PP2;// early initilization 
     Eigen::SparseMatrix<double> PP;
-    Eigen::SparseMatrix<double> As;
     for (int i = 105; i <= 110; i = i + 5) {
-        if (i == 105){
-        auto matrices = memMap(i);
-        std::vector<int> patt = {
-       -6603, -6602, -6601, -6600, -6303, -6302, -6301, -6300, -6003,
-       -6002, -6001, -6000, -303, -302, -301, -300, -3, -2, -1, 0,
-       1, 2, 3, 4, 300, 301, 302, 303, 304, 6000, 6001, 6002, 6003,
-       6004, 6300, 6301, 6302, 6303, 6304, 6600, 6601, 6602, 6603, 6604
-        };
-        auto& matA = matrices.first;
-        auto& matB = matrices.second;
+        if (i == 105) {
+            auto matrices = memMap(i);
+            std::vector<int> patt = {
+           -6603, -6602, -6601, -6600, -6303, -6302, -6301, -6300, -6003,
+           -6002, -6001, -6000, -303, -302, -301, -300, -3, -2, -1, 0,
+           1, 2, 3, 4, 300, 301, 302, 303, 304, 6000, 6001, 6002, 6003,
+           6004, 6300, 6301, 6302, 6303, 6304, 6600, 6601, 6602, 6603, 6604
+            };
+            auto& matA = matrices.first;
+            auto& matB = matrices.second;
 
-        // Use computeIndices to get the IndicesResult
-        IndicesResult indicesResult = computeIndices(N, patt);
+            // Use computeIndices to get the IndicesResult
+            IndicesResult indicesResult = computeIndices(N, patt);
 
-        // Use the values from the IndicesResult struct to compute the mask
-        Eigen::SparseMatrix<double> msk = computeMask(indicesResult.rows, indicesResult.cols, indicesResult.nz_count);
+            // Use the values from the IndicesResult struct to compute the mask
+            Eigen::SparseMatrix<double> msk = computeMask(indicesResult.rows, indicesResult.cols, indicesResult.nz_count);
 
-        
-        As = mat_A;
-        std::vector<int> I, J;
-        findNonZeros(mat_A, I, J);
-        Eigen::SparseMatrix<double> findA = createSparseMatrix(I, J);
+            Eigen::SparseMatrix<double> As;
+            std::vector<int> I, J;
+            findNonZeros(mat_A, I, J);
+            Eigen::SparseMatrix<double> findA = createSparseMatrix(I, J);
 
-        Eigen::SparseMatrix<bool> PP1 = convertToLogical(findA);
-       // findA.resize(0, 0);
-        PP = elementWiseMultiply(PP1, msk);
-        //PP2 = PP;
-      
-    }
-       else if (i > 105) {
+            Eigen::SparseMatrix<bool> PP1 = convertToLogical(findA);
+            PP = elementWiseMultiply(PP1, msk);
+            PP2 = PP;
+        }
+        else if (i > 105) {
             auto matrices = memMap(i);
             auto& matA = matrices.first;
             auto& matB = matrices.second;
@@ -179,14 +173,17 @@ int main() {
 
             multiplyMatrixByVectorElementWise(matA, Dsr_1);
             scaleMatrixRows(matB, Dsr_1);
-            //matB.resize(0, 0); // This effectively frees the memory used by matB
-            //matA.resize(0, 0);
+
+
+
+
+
         }
-        Eigen::SparseMatrix<double> MM = computeSAM(As, PP, PP, N);
-        
+        Eigen::SparseMatrix<double> MM = computeSAM(mat_A, PP, PP2, N);
+
 
     }
-   
+
     auto end_time_total = std::chrono::high_resolution_clock::now();
     double elapsed_time_total = std::chrono::duration<double>(end_time_total - start_time_total).count();
     std::cout << "Total runtime of main(): " << elapsed_time_total << " seconds" << std::endl;
@@ -194,6 +191,3 @@ int main() {
 
     return 0;
 }
-
-
-

@@ -84,11 +84,11 @@
     <ClInclude Include="createSparseSubMatrix.h">
       <Filter>Header Files\Sparse_Matrix</Filter>
     </ClInclude>
-    <ClInclude Include="computeSAM.h">
-      <Filter>Header Files\Sparse_Matrix</Filter>
-    </ClInclude>
     <ClInclude Include="size.h">
       <Filter>Header Files\Matrix</Filter>
+    </ClInclude>
+    <ClInclude Include="computeSAM.h">
+      <Filter>Header Files\Sparse_Matrix</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

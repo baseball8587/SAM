@@ -8,6 +8,7 @@
 #include <unordered_map>
 #include <omp.h>
 #include <numeric>
+#include <iostream>
 
 Eigen::SparseMatrix<double> computeSAM(const Eigen::SparseMatrix<double>& As,
     const Eigen::SparseMatrix<double>& PP,
